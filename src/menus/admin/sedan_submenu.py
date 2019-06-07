@@ -37,13 +37,7 @@ class SedansData(BaseMenu):
                     description) + ' Цена (в$):{}'.format(price), chat_id=query.message.chat_id,
                 message_id=query.message.message_id)
         return self.States.ACTION
-    """
-    def add_sedan(self, bot, update, user_data):
-    
-    def change_desc(self, bot, update, user_data):
-    
-    def delete_sedan(self, bot, update, user_data):
-    """
+
     def get_handler(self):
         handler = ConversationHandler(
             entry_points=[CallbackQueryHandler(self.sedan_submenu, pattern='adm_sedan')],
