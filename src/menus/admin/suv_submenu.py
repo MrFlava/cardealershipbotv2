@@ -41,14 +41,6 @@ class SuvData(BaseMenu):
                 message_id=query.message.message_id)
         return self.States.ACTION
 
-    """
-    def add_suv(self, bot, update, user_data):
-
-    def change_desc(self, bot, update, user_data):
-
-    def delete_suv(self, bot, update, user_data):
-    """
-
     def get_handler(self):
         handler = ConversationHandler(
             entry_points=[CallbackQueryHandler(self.suv_submenu, pattern='adm_suv')],
