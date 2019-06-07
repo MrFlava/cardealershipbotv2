@@ -41,13 +41,6 @@ class CabrioData(BaseMenu):
                 message_id=query.message.message_id)
         return self.States.ACTION
 
-    """
-    def add_cabrio(self, bot, update, user_data):
-
-    def change_desc(self, bot, update, user_data):
-
-    def delete_cabrio(self, bot, update, user_data):
-    """
 
     def get_handler(self):
 
