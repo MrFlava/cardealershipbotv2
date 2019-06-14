@@ -17,7 +17,7 @@ setup(
     name='Cardealershipbot',
     version = '0.1',
     description='Bot-shop',
-    url = 'https://github.com/MrFlava/Cardealershipbot',
+    url = 'https://github.com/MrFlava/cardealershipbotv2',
     author = 'MrFlava',
     packages=["src"],
     install_requires=pkgs,

@@ -38,6 +38,7 @@ class CabrioData(BaseMenu):
                 chat_id=query.message.chat_id, message_id=query.message.message_id)
         return self.States.ACTION
 
+
     def get_handler(self):
         add_cabrio = AddCabrio(self, bot=self.bot)
         handler = ConversationHandler(
