@@ -1,15 +1,17 @@
 import enum
-from src.menus.user.order import SellOrders
 from src.models import DBSession, User
 from src.menus.user.rent import RentCars
 from src.menus.user.sell import SellCars
 from botmanlib.menus.basemenu import BaseMenu
 from telegram import KeyboardButton, ReplyKeyboardMarkup
 from botmanlib.menus.helpers import unknown_command, add_to_db
-from telegram.ext import CommandHandler, CallbackQueryHandler, ConversationHandler, MessageHandler, Filters, RegexHandler
+from telegram.ext import CommandHandler,  ConversationHandler, MessageHandler, Filters
+
 
 class StartMenu(BaseMenu):
+
     menu_name = "start_menu"
+
     class States(enum.Enum):
         ACTION = 1
 
@@ -26,7 +28,7 @@ class StartMenu(BaseMenu):
             return self.conv_fallback(user_data)
         buttons = [[KeyboardButton('Купить машину'), KeyboardButton('Арендовать машину')]]
         buttons_markup = ReplyKeyboardMarkup(buttons, one_time_keyboard=True, resize_keyboard=True)
-        bot.send_message(chat_id=update.message.chat_id,
+        self.send_or_edit(user_data, chat_id=update.message.chat_id,
                          text='Здравствуйте, я  бот-автосалон.Благодаря мне'
                               ' Вы можете купить или арендовать машину прямо в телеграме!'
                               ' Чем могу быть полезен?', reply_markup=buttons_markup)

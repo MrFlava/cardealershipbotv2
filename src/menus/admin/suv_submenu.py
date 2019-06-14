@@ -1,9 +1,11 @@
 import enum
-from src.models import Suv, DBSession
+from src.models import DBSession, Cars
+from src.menus.admin.add_cars import AddSUV
 from botmanlib.menus.basemenu import BaseMenu
 from botmanlib.menus.helpers import unknown_command
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import CallbackQueryHandler, ConversationHandler, MessageHandler, Filters
+
 
 class SuvData(BaseMenu):
 
@@ -13,47 +15,36 @@ class SuvData(BaseMenu):
 
         ACTION = 1
 
-    def suv_submenu(self,bot, update):
+    def suv_submenu(self, bot, update, user_data):
         query = update.callback_query
-        submenu_suv = [[InlineKeyboardButton('Показать БД-автомобилей', callback_data='show_suv'),
-                        InlineKeyboardButton('Удалить автомобиль из БД', callback_data='delete_suv')],
+        submenu_suv = [[InlineKeyboardButton('Показать автомобили', callback_data='SUV'),
+                        InlineKeyboardButton('Удалить автомобиль', callback_data='delete_suv')],
                        [InlineKeyboardButton('Изменить описание автомобиля', callback_data='desc_suv'),
                         InlineKeyboardButton('Добавить автомобиль', callback_data='add_suv')]]
         reply_markup = InlineKeyboardMarkup(submenu_suv)
-        bot.send_message(text='Выберите операцию:', chat_id=query.message.chat_id,
-                         message_id=query.message.message_id, reply_markup=reply_markup)
+        self.send_or_edit(user_data, text='Выберите операцию:', chat_id=query.message.chat_id, reply_markup=reply_markup)
         return self.States.ACTION
 
-    def show_suv(self, bot, update):
-        suv = DBSession.query(Suv)
+    def show_suv(self, bot, update, user_data):
         query = update.callback_query
-        bot.send_message(text='Список внедорожников:', chat_id=query.message.chat_id,
-                         message_id=query.message.message_id)
+        suv = DBSession.query(Cars).filter(Cars.car_type == query.data).all()
+        self.send_or_edit(user_data, text='Список внедорожников:', chat_id=query.message.chat_id)
         for suv_car in suv:
-            id_car = str(suv_car.id_car)
             car_model = suv_car.car_model
             description = suv_car.description
             price = str(suv_car.price)
-            bot.send_message(
-                text='Id-машины:{}'.format(id_car) + ' Название модели:{}'.format(
-                    car_model) + 'Описание:{}'.format(
-                    description) + ' Цена (в$):{}'.format(price), chat_id=query.message.chat_id,
-                message_id=query.message.message_id)
+            bot.send_message(' Название модели:{}'.format(car_model)
+                             + 'Описание:{}'.format(description) + ' Цена (в$):{}'.format(price),
+                             chat_id=query.message.chat_id, message_id=query.message.message_id)
         return self.States.ACTION
 
-    """
-    def add_suv(self, bot, update, user_data):
-
-    def change_desc(self, bot, update, user_data):
-
-    def delete_suv(self, bot, update, user_data):
-    """
-
     def get_handler(self):
+        add_suv = AddSUV(self, bot=self.bot)
         handler = ConversationHandler(
-            entry_points=[CallbackQueryHandler(self.suv_submenu, pattern='adm_suv')],
+            entry_points=[CallbackQueryHandler(self.suv_submenu, pattern='adm_suv', pass_user_data=True)],
             states={
-                self.States.ACTION: [CallbackQueryHandler(self.show_suv, pattern='show_suv')],
+                self.States.ACTION: [CallbackQueryHandler(self.show_suv, pattern='SUV', pass_user_data=True),
+                                     add_suv.handler],
             },
             fallbacks=[MessageHandler(Filters.all, unknown_command(-1), pass_user_data=True)], allow_reentry=True)
         return handler

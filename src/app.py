@@ -3,7 +3,7 @@ import logging
 from telegram.ext import Updater
 from botmanlib.bot import BotmanBot
 from src.menus.user.start import StartMenu
-from src.menus.admin.main_menu import AdminMenu
+from src.menus.admin.admin import AdminMenu
 from src.settings import MEDIA_FOLDER, RESOURCES_FOLDER
 
 logger = logging.getLogger(__name__)
@@ -31,6 +31,7 @@ def main():
     logger.info("Bot started")
     updater.start_polling()
     updater.idle()
+    bot.stop()
 
 if __name__ == "__main__":
     main()
