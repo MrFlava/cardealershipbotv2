@@ -3,7 +3,6 @@ from src.models import User, DBSession, Cars
 from src.local_settings import admin_password
 from botmanlib.menus.basemenu import BaseMenu
 from botmanlib.menus.helpers import unknown_command
-from src.menus.admin.change_description import ChangeDesc
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from src.menus.admin.add_cars import AddSedan, AddCoupe, AddSUV, AddSportcar, AddCabrio, AddWagon
 from telegram.ext import CommandHandler, CallbackQueryHandler, ConversationHandler, MessageHandler, Filters
