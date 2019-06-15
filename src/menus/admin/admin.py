@@ -3,6 +3,7 @@ from src.models import User, DBSession, Cars
 from src.local_settings import admin_password
 from botmanlib.menus.basemenu import BaseMenu
 from botmanlib.menus.helpers import unknown_command
+from src.menus.admin.change_description import ChangeDesc
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from src.menus.admin.add_cars import AddSedan, AddCoupe, AddSUV, AddSportcar, AddCabrio, AddWagon
 from telegram.ext import CommandHandler, CallbackQueryHandler, ConversationHandler, MessageHandler, Filters
@@ -113,6 +114,7 @@ class AdminMenu(BaseMenu):
         add_sportcar = AddSportcar(self, bot=self.bot)
         add_cabriolet = AddCabrio(self, bot=self.bot)
         add_wagon = AddWagon(self, bot=self.bot)
+        change_desc = ChangeDesc(self, bot=self.bot)
         handler = ConversationHandler(
                 entry_points=[CommandHandler('admin', self.admin_menu, pass_user_data=True)],
                 states={
@@ -121,7 +123,7 @@ class AdminMenu(BaseMenu):
                                          CallbackQueryHandler(self.cars_data_submenu, pattern='car_data', pass_user_data=True),
                                          CallbackQueryHandler(self.show_cars_submenu, pattern='show_cars', pass_user_data=True),
                                          CallbackQueryHandler(self.add_car_submenu, pattern='add_cars', pass_user_data=True),
-                                         add_sedan.handler,
+                                         change_desc.handler, add_sedan.handler,
                                          add_coupe.handler,
                                          add_suv.handler, add_sportcar.handler,
                                          add_cabriolet.handler, add_wagon.handler,
