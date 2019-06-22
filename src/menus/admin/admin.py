@@ -1,16 +1,12 @@
 import enum
-from src.models import User, DBSession
+from src.models import User, DBSession, Cars
 from src.local_settings import admin_password
 from botmanlib.menus.basemenu import BaseMenu
-from src.menus.admin.suv_submenu import SuvData
+from src.menus.admin.delete_cars import DeleteCars
 from botmanlib.menus.helpers import unknown_command
-from src.menus.admin.wagon_submenu import WagonsData
-from src.menus.admin.coupe_submenu import CoupesData
-from src.menus.admin.sedan_submenu import SedansData
-from src.menus.admin.cabrio_submenu import CabrioData
-from src.menus.admin.customers_data import CustomersData
-from src.menus.admin.sportcar_submenu import SportcarsData
+from src.menus.admin.change_description import ChangeDesc
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+from src.menus.admin.add_cars import AddSedan, AddCoupe, AddSUV, AddSportcar, AddCabrio, AddWagon
 from telegram.ext import CommandHandler, CallbackQueryHandler, ConversationHandler, MessageHandler, Filters
 
 
@@ -43,60 +39,97 @@ class AdminMenu(BaseMenu):
     def about_button(self, bot, update, user_data):
         query = update.callback_query
         self.send_or_edit(user_data, text='Режим администратоатора позволяет просматривать данные пользователей, ' 
-                                          'клиентов и работать с БД-машин', chat_id=query.message.chat_id,
-                          message_id=query.message.message_id)
+                                          'клиентов и работать с БД-машин', chat_id=query.message.chat_id)
         return self.States.ACTION
 
     def show_users_button(self, bot, update, user_data):
 
         users = DBSession.query(User).all()
         query = update.callback_query
-        self.send_or_edit(user_data, text='Список всех пользователей бота:',
-                          chat_id=query.message.chat_id, message_id=query.message.message_id)
+        self.send_or_edit(user_data, text='Список всех пользователей бота:', chat_id=query.message.chat_id)
         for user in users:
-            chat_id = str(user.chat_id)
-            name = user.nameACTION = 1
+            name = user.name
             username = user.username
             active = user.active
             join_date = str(user.join_date)
             bot.send_message(
-                text=' Чат-id:{}'.format(chat_id) +
-                     ' Имя:{}'.format(name) + 'Юзернейм:{}'.format(username) + 'Активность:{}'.format(active)
+                text=' Имя:{}'.format(name) + 'Юзернейм:{}'.format(username) + 'Активность:{}'.format(active)
                      + 'Дата начала работы с ботом:{}'.format(join_date),
                 chat_id=query.message.chat_id, message_id=query.message.message_id)
         return self.States.ACTION
 
-    def cars_data_button(self, bot, update, user_data):
+    def cars_data_submenu(self, bot, update, user_data):
         query = update.callback_query
-        submenu_keyboard = [[InlineKeyboardButton('Седан', callback_data='adm_sedan'),
-                             InlineKeyboardButton('Купе', callback_data='adm_coupe')],
-                            [InlineKeyboardButton('Внедорожник', callback_data='adm_suv'),
-                             InlineKeyboardButton('Спорткар', callback_data='adm_sportcar')],
-                            [InlineKeyboardButton('Кабриолет', callback_data='adm_cabrio'),
-                             InlineKeyboardButton('Универсал', callback_data='adm_wagon')]]
+        submenu_keyboard = [[InlineKeyboardButton('Показать автомобили', callback_data='show_cars'),
+                         InlineKeyboardButton('Удалить автомобиль', callback_data='delete_cars')],
+                       [InlineKeyboardButton('Изменить описание', callback_data='desc_cars'),
+                        InlineKeyboardButton('Добавить автомобиль', callback_data='add_cars')]]
         reply_markup = InlineKeyboardMarkup(submenu_keyboard)
-        self.send_or_edit(user_data, text='Для начала выберите тип машины',
-                          chat_id=query.message.chat_id, reply_markup=reply_markup)
+        self.send_or_edit(user_data, text='Выберите операцию:', chat_id=query.message.chat_id, reply_markup=reply_markup)
+        return self.States.ACTION
+
+    def show_cars_submenu(self, bot, update, user_data):
+        query = update.callback_query
+        submenu_keyboard = [[InlineKeyboardButton('Седан', callback_data='Sedan'),
+                             InlineKeyboardButton('Купе', callback_data='Coupe')],
+                            [InlineKeyboardButton('Внедорожник', callback_data='SUV'),
+                             InlineKeyboardButton('Спорткар', callback_data='Sportcar')],
+                            [InlineKeyboardButton('Кабриолет', callback_data='Cabriolet'),
+                             InlineKeyboardButton('Универсал', callback_data='Wagon')]]
+        reply_markup = InlineKeyboardMarkup(submenu_keyboard)
+        self.send_or_edit(user_data, text='Выберите тип кузова:', chat_id=query.message.chat_id,
+                          reply_markup=reply_markup)
+        return self.States.ACTION
+
+    def show_car(self, bot, update, user_data):
+        query = update.callback_query
+        cars = DBSession.query(Cars).filter(Cars.car_type == query.data).all()
+        self.send_or_edit(user_data, text='Список всех машин:',
+                          chat_id=query.message.chat_id)
+        for car in cars:
+            car_name = car.car_model
+            description = car.description
+            price = str(car.price)
+            bot.send_message(text='Название:{}'.format(car_name) + ' Описание:{}'.format(description)
+                                  + ' Цена (в $):{}'.format(price), chat_id=query.message.chat_id,
+                             message_id=query.message.message_id)
+        return self.States.ACTION
+
+    def add_car_submenu(self, bot, update, user_data):
+        query = update.callback_query
+        submenu_keyboard = [[InlineKeyboardButton('Седан', callback_data='add_sedan'),
+                             InlineKeyboardButton('Купе', callback_data='add_coupe')],
+                            [InlineKeyboardButton('Внедорожник', callback_data='add_suv'),
+                             InlineKeyboardButton('Спорткар', callback_data='add_sportcar')],
+                            [InlineKeyboardButton('Кабриолет', callback_data='add_cabriolet'),
+                             InlineKeyboardButton('Универсал', callback_data='add_wagon')]]
+        reply_markup = InlineKeyboardMarkup(submenu_keyboard)
+        bot.send_message(text='Выберите тип кузова:', chat_id=query.message.chat_id,
+                        reply_markup=reply_markup, message_id=query.message.message_id)
         return self.States.ACTION
 
     def get_handler(self):
-        wagons_data = WagonsData(self, bot=self.bot)
-        sportcars_data = SportcarsData(self, bot=self.bot)
-        suv_data = SuvData(self, bot=self.bot)
-        cabrio_data = CabrioData(self, bot=self.bot)
-        coupes_data = CoupesData(self, bot=self.bot)
-        sedans_data = SedansData(self, bot=self.bot)
-        customers_data = CustomersData(self, bot=self.bot)
+        add_sedan = AddSedan(self, bot=self.bot)
+        add_coupe = AddCoupe(self, bot=self.bot)
+        add_suv = AddSUV(self, bot=self.bot)
+        add_sportcar = AddSportcar(self, bot=self.bot)
+        add_cabriolet = AddCabrio(self, bot=self.bot)
+        add_wagon = AddWagon(self, bot=self.bot)
+        delete_cars = DeleteCars(self, bot=self.bot)
+        change_desc = ChangeDesc(self, bot=self.bot)
         handler = ConversationHandler(
                 entry_points=[CommandHandler('admin', self.admin_menu, pass_user_data=True)],
                 states={
                     self.States.ACTION: [CallbackQueryHandler(self.about_button, pattern='about', pass_user_data=True),
                                          CallbackQueryHandler(self.show_users_button, pattern='show_users', pass_user_data=True),
-                                         CallbackQueryHandler(self.cars_data_button, pattern='car_data', pass_user_data=True),
-                                         sedans_data.handler,  customers_data.handler,
-                                         coupes_data.handler, cabrio_data.handler,
-                                         suv_data.handler, sportcars_data .handler,
-                                         wagons_data.handler],
+                                         CallbackQueryHandler(self.cars_data_submenu, pattern='car_data', pass_user_data=True),
+                                         CallbackQueryHandler(self.show_cars_submenu, pattern='show_cars', pass_user_data=True),
+                                         CallbackQueryHandler(self.add_car_submenu, pattern='add_cars', pass_user_data=True),
+                                         delete_cars.handler, change_desc.handler,
+                                         add_sedan.handler, add_coupe.handler,
+                                         add_suv.handler, add_sportcar.handler,
+                                         add_cabriolet.handler, add_wagon.handler,
+                                         CallbackQueryHandler(self.show_car, pass_user_data=True)],
                     self.States.END: [CallbackQueryHandler(self.admin_menu, pass_user_data=True)]
                 },
     fallbacks=[MessageHandler(Filters.all, unknown_command(-1), pass_user_data=True)], allow_reentry=True)
