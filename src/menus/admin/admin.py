@@ -50,7 +50,7 @@ class AdminMenu(BaseMenu):
         user = user_data['user']
         query = update.callback_query
         self.send_or_edit(user_data, text='Режим администратоатора позволяет просматривать данные пользователей, '
-                                          'клиентов и работать с БД-машин', chat_id=user.chat_id)
+                                          'клиентов и работать с данными машин', chat_id=user.chat_id)
         return self.States.ACTION
 
     def show_users(self, bot, update, user_data):
@@ -67,18 +67,6 @@ class AdminMenu(BaseMenu):
                 text=' Имя:{}'.format(name) + 'Юзернейм:{}'.format(username) + 'Активность:{}'.format(active)
                      + 'Дата начала работы с ботом:{}'.format(join_date),
                 chat_id=query.message.chat_id, message_id=query.message.message_id)
-        return self.States.ACTION
-
-    def cars_data(self, bot, update, user_data):
-        user = user_data['user']
-        query = update.callback_query
-        submenu_keyboard = [[InlineKeyboardButton('Показать автомобили', callback_data='show_cars'),
-                             InlineKeyboardButton('Удалить автомобиль', callback_data='delete_cars')],
-                            [InlineKeyboardButton('Изменить описание', callback_data='desc_cars'),
-                             InlineKeyboardButton('Добавить автомобиль', callback_data='add_cars')]]
-        reply_markup = InlineKeyboardMarkup(submenu_keyboard)
-        self.send_or_edit(user_data, text='Выберите операцию:', chat_id=user.chat_id,
-                          reply_markup=reply_markup)
         return self.States.ACTION
 
     def get_handler(self):
