@@ -17,7 +17,7 @@ engine = create_engine(db.database_url)
 
 class Car(Base):
 
-    __tablename__ = 'car'
+    __tablename__ = 'cars'
 
     id = Column(Integer, primary_key=True)
     type = Column(String)
@@ -40,7 +40,7 @@ class User(Base):
 
 class Customer(Base):
 
-    __tablename__ = 'customers_data'
+    __tablename__ = 'customers'
 
     id = Column(Integer, primary_key=True)
     type = Column(String)
