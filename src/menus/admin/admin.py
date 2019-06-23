@@ -54,7 +54,7 @@ class AdminMenu(BaseMenu):
         user = user_data['user']
         query = update.callback_query
         self.send_or_edit(user_data, text='Режим администратоатора позволяет просматривать данные пользователей, '
-                                          'клиентов и работать с БД-машин', chat_id=user.chat_id)
+                                          'клиентов и работать с данными машин', chat_id=user.chat_id)
         return self.States.ACTION
 
     def show_users(self, bot, update, user_data):
