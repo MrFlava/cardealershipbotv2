@@ -1,15 +1,11 @@
 import enum
 from src.models import User, DBSession
-from src.menus.admin.add_cars import AddCars
 from botmanlib.menus.basemenu import BaseMenu
 from src.local_settings import admin_password
-from src.menus.admin.show_cars import ShowCars
-from src.menus.admin.delete_cars import DeleteCars
+from src.menus.admin.cars_control import CarsListMenu
 from src.menus.admin.show_customers import ShowCustomers
-from src.menus.admin.change_description import ChangeDesc
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from botmanlib.menus.helpers import unknown_command, add_to_db, to_state
-
 from telegram.ext import CommandHandler, CallbackQueryHandler, ConversationHandler, MessageHandler, Filters
 
 
@@ -40,7 +36,7 @@ class AdminMenu(BaseMenu):
             admin_keyboard = [[InlineKeyboardButton('О правах администратора', callback_data='about'),
                                InlineKeyboardButton('Данные клиентов', callback_data='show_customers')],
                               [InlineKeyboardButton('Данные пользователей', callback_data='show_users'),
-                               InlineKeyboardButton('Данные машин', callback_data='car_data')]]
+                               InlineKeyboardButton('Данные машин', callback_data='cars_data')]]
             reply_markup = InlineKeyboardMarkup(admin_keyboard)
             update.message.reply_text('Активирован режим администратора!',
                                       reply_markup=reply_markup)
@@ -86,10 +82,7 @@ class AdminMenu(BaseMenu):
         return self.States.ACTION
 
     def get_handler(self):
-        add_cars = AddCars(self, bot=self.bot)
-        delete_cars = DeleteCars(self, bot=self.bot)
-        change_desc = ChangeDesc(self, bot=self.bot)
-        show_cars = ShowCars(self, bot=self.bot)
+        cars_list_menu = CarsListMenu(self)
         show_customers = ShowCustomers(self, bot=self.bot)
         handler = ConversationHandler(
             entry_points=[CommandHandler('admin', self.admin_menu, pass_user_data=True)],
@@ -97,10 +90,7 @@ class AdminMenu(BaseMenu):
                 self.States.ACTION: [CallbackQueryHandler(self.about_adminmode, pattern='about', pass_user_data=True),
                                      CallbackQueryHandler(self.show_users,
                                                           pattern='show_users', pass_user_data=True),
-                                     CallbackQueryHandler(self.cars_data, pattern='car_data', pass_user_data=True),
-                                     show_cars.handler,
-                                     show_customers.handler, add_cars.handler,
-                                     delete_cars.handler, change_desc.handler,
+                                     show_customers.handler, cars_list_menu.handler,
                                      MessageHandler(Filters.all, to_state(self.States.ACTION))],
                 self.States.END: [CallbackQueryHandler(self.admin_menu, pass_user_data=True),
                                   MessageHandler(Filters.all, to_state(self.States.END))]
