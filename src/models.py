@@ -2,7 +2,7 @@ import os
 import datetime
 from botmanlib.models import db
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy import create_engine, Column, String, Integer, DateTime, Boolean, ForeignKey
+from sqlalchemy import create_engine, Column, String, Integer, DateTime, Boolean
 
 if not os.getenv('sqlalchemy.url'):
     from src.settings import PROJECT_ROOT
@@ -17,7 +17,7 @@ engine = create_engine(db.database_url)
 
 class Car(Base):
 
-    __tablename__ = 'car'
+    __tablename__ = 'cars'
 
     id = Column(Integer, primary_key=True)
     type = Column(String)
@@ -34,13 +34,14 @@ class User(Base):
     chat_id = Column(Integer)
     name = Column(String)
     username = Column(String)
+    language_code = Column(String)
     active = Column(Boolean, default=True)
     join_date = Column(DateTime, default=datetime.datetime.now)
 
 
 class Customer(Base):
 
-    __tablename__ = 'customers_data'
+    __tablename__ = 'customers'
 
     id = Column(Integer, primary_key=True)
     type = Column(String)
